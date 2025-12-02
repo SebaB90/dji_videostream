@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Docker build cache
+.buildx-cache-esdk-minimal/
+
+# Video / heavy files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.zip
+*.bin
+
+# Ignore leftover git folders
+Edge-SDK/.git/
+
+# General build and IDE
+dist/
+build/
+.vscode/
