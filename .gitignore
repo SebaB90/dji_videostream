@@ -25,3 +25,5 @@ build/
 .vscode/
 docker/dji_keys/
 docker/dji_keys/**
+docker/dji_keys/
+docker/dji_keys/**
