@@ -54,15 +54,27 @@ int32_t ImageStreamProcessor::InitEncoder(int width, int height) {
     // Initialize FFmpeg
     avformat_network_init();
 
+    // Determine format based on URL scheme
+    const char* format_name = nullptr;
+    if (stream_url_.find("rtsp://") == 0) {
+        format_name = "rtsp";
+    } else if (stream_url_.find("rtmp://") == 0) {
+        format_name = "flv";
+    } else if (stream_url_.find("http://") == 0 || stream_url_.find("https://") == 0) {
+        // For HTTP(S) URLs, try RTSP as it's commonly used with MediaMTX/WHEP servers
+        format_name = "rtsp";
+    } else {
+        ERROR("Unsupported URL scheme. Supported: rtsp://, rtmp://, http://");
+        return -1;
+    }
+
     // Allocate format context for output
-    int ret = avformat_alloc_output_context2(&format_ctx_, nullptr, "rtsp", stream_url_.c_str());
+    int ret = avformat_alloc_output_context2(&format_ctx_, nullptr, format_name, stream_url_.c_str());
     if (ret < 0 || !format_ctx_) {
-        // Try RTMP if RTSP fails
-        ret = avformat_alloc_output_context2(&format_ctx_, nullptr, "flv", stream_url_.c_str());
-        if (ret < 0 || !format_ctx_) {
-            ERROR("Could not create output context for %s", stream_url_.c_str());
-            return -1;
-        }
+        char errbuf[256];
+        av_strerror(ret, errbuf, sizeof(errbuf));
+        ERROR("Could not create output context for %s: %s", stream_url_.c_str(), errbuf);
+        return -1;
     }
 
     // Find encoder
