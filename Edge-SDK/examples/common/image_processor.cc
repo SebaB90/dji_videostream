@@ -23,6 +23,7 @@
 
 #include "image_processor_display.h"
 #include "image_processor_yolovfastest.h"
+#include "image_processor_http_stream.h"
 #include "logger.h"
 
 namespace edge_app {
@@ -50,6 +51,9 @@ std::shared_ptr<ImageProcessor> CreateImageProcessor(
     }
     if (option.name == std::string("yolovfastest")) {
         return std::make_shared<ImageProcessorYolovFastest>(option.alias);
+    }
+    if (option.name == std::string("httpstream")) {
+        return std::make_shared<ImageHttpStreamProcessor>(option.alias, option.stream_url, option.userdata);
     }
     return std::make_shared<UndefinedImageProcessor>(option.alias);
 }

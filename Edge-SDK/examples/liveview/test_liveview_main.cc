@@ -221,8 +221,13 @@ int main(int argc, char **argv) {
     StreamDecoder::Options decoder_option = {.name = std::string("ffmpeg")};
     auto stream_decoder = CreateStreamDecoder(decoder_option);
 
-    ImageProcessor::Options image_processor_option = {.name = std::string("display"),
-                                       .alias = camera, .userdata = g_liveview_sample};
+    // Use HTTP stream processor to send video to dashboard
+    ImageProcessor::Options image_processor_option = {
+        .name = std::string("httpstream"),
+        .alias = camera,
+        .userdata = g_liveview_sample,
+        .stream_url = std::string("http://localhost:8889/drone")
+    };
     auto image_processor = CreateImageProcessor(image_processor_option);
 
     if (0 != InitLiveviewSample(
