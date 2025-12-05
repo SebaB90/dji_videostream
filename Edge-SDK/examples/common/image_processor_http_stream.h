@@ -67,22 +67,21 @@ class ImageHttpStreamProcessor : public ImageProcessor {
             int height = image->rows;
             double fps = 30.0;
             
-            // Build GStreamer pipeline for HTTP streaming via WHIP protocol
-            // This is compatible with MediaMTX and similar servers
+            // Build GStreamer pipeline for HTTP streaming
+            // This pipeline encodes to H264 and sends via HTTP chunked transfer
             std::string gst_pipeline = 
                 "appsrc ! videoconvert ! video/x-raw,format=I420 ! "
                 "x264enc tune=zerolatency bitrate=2000 speed-preset=ultrafast ! "
                 "video/x-h264,profile=baseline ! "
-                "flvmux streamable=true ! "
-                "rtmpsink location=\"" + stream_url_ + "\"";
+                "mpegtsmux ! "
+                "hlssink location=/tmp/segment%05d.ts playlist-location=/tmp/playlist.m3u8";
             
-            // Try GStreamer pipeline first (better for HTTP/RTMP streaming)
+            // Try GStreamer pipeline first for proper HTTP streaming
             bool success = writer_.open(gst_pipeline, cv::CAP_GSTREAMER, 0, fps, 
                                          cv::Size(width, height), true);
             
             if (!success) {
-                // Fallback: Try FFmpeg backend with RTMP format
-                // Note: OpenCV VideoWriter with FFmpeg can output to RTMP URLs
+                // Fallback: Try FFmpeg backend with FLV format (common for streaming)
                 success = writer_.open(stream_url_, 
                                        cv::CAP_FFMPEG,
                                        cv::VideoWriter::fourcc('F', 'L', 'V', '1'),
@@ -92,17 +91,17 @@ class ImageHttpStreamProcessor : public ImageProcessor {
             }
             
             if (!success) {
-                // Try with H264 codec
+                // Try with H264 codec (uppercase as per codec convention)
                 success = writer_.open(stream_url_, 
                                        cv::CAP_FFMPEG,
-                                       cv::VideoWriter::fourcc('a', 'v', 'c', '1'),
+                                       cv::VideoWriter::fourcc('A', 'V', 'C', '1'),
                                        fps, 
                                        cv::Size(width, height), 
                                        true);
             }
             
             if (!success) {
-                // Try with X264 codec (lowercase)
+                // Try with X264 codec
                 success = writer_.open(stream_url_, 
                                        cv::CAP_FFMPEG,
                                        cv::VideoWriter::fourcc('X', '2', '6', '4'),
@@ -123,10 +122,10 @@ class ImageHttpStreamProcessor : public ImageProcessor {
             writer_initialized_ = true;
         }
 
-        // Add OSD information if available
-        std::string h = std::to_string(image->size().width);
-        std::string w = std::to_string(image->size().height);
-        std::string osd = h + "x" + w;
+        // Add OSD information if available (width x height format)
+        std::string width_str = std::to_string(image->size().width);
+        std::string height_str = std::to_string(image->size().height);
+        std::string osd = width_str + "x" + height_str;
         if (liveview_sample_) {
             auto kbps = liveview_sample_->GetStreamBitrate();
             osd += std::string(",") + std::to_string(kbps) + std::string("kbps");
