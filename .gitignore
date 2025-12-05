@@ -22,6 +22,7 @@ Edge-SDK/.git/
 # General build and IDE
 dist/
 build/
+*.o
 .vscode/
 docker/dji_keys/
 docker/dji_keys/**

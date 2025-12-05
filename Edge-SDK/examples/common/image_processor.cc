@@ -22,6 +22,7 @@
 #include "image_processor.h"
 
 #include "image_processor_display.h"
+#include "image_processor_stream.h"
 #include "image_processor_yolovfastest.h"
 #include "logger.h"
 
@@ -50,6 +51,9 @@ std::shared_ptr<ImageProcessor> CreateImageProcessor(
     }
     if (option.name == std::string("yolovfastest")) {
         return std::make_shared<ImageProcessorYolovFastest>(option.alias);
+    }
+    if (option.name == std::string("stream")) {
+        return std::make_shared<ImageStreamProcessor>(option.alias, option.stream_url);
     }
     return std::make_shared<UndefinedImageProcessor>(option.alias);
 }

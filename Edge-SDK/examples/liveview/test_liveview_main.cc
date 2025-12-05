@@ -109,6 +109,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <thread> // Required for multithreading
+#include <cstring>
 
 #include "logger.h"
 #include "sample_liveview.h"
@@ -194,16 +195,32 @@ int main(int argc, char **argv) {
     int type = 0;
     int quality = 0;
     int source = 0;
+    std::string stream_url = "";
+
+    // Check for --stream-url option
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--stream-url") == 0 && i + 1 < argc) {
+            stream_url = argv[i + 1];
+            // Shift remaining arguments
+            for (int j = i; j < argc - 2; j++) {
+                argv[j] = argv[j + 2];
+            }
+            argc -= 2;
+            break;
+        }
+    }
 
     // --- Input Validation Loop (Same as previous solution) ---
     while (argc < 3 || (type = atoi(argv[1])) > 1 || (quality = atoi(argv[2])) > 5 ||
            (argc == 4 && ((source = atoi(argv[3])) < 1 || source > 3))) {
         ERROR(
-            "Usage: %s [CAMERA_TYPE] [QUALITY] [LENS] \nDESCRIPTION:\n "
+            "Usage: %s [CAMERA_TYPE] [QUALITY] [LENS] [--stream-url URL]\nDESCRIPTION:\n "
             "CAMERA_TYPE: "
             "0-FPV. 1-Payload \n QUALITY: 1-540p. 2-720p. 3-720pHigh. "
             "4-1080p. 5-1080pHigh"
-            "\n LENS (Optional): 1-wide 2-zoom 3-IR \n eg: \n %s 1 4 2 (Payload, 1080p, Zoom)",
+            "\n LENS (Optional): 1-wide 2-zoom 3-IR"
+            "\n --stream-url (Optional): RTSP/RTMP URL to stream video (e.g., rtsp://localhost:8554/drone)"
+            "\n eg: \n %s 1 4 2 --stream-url rtsp://localhost:8554/drone (Payload, 1080p, Zoom, stream to URL)",
             argv[0], argv[0]);
         sleep(1);
         
@@ -221,9 +238,25 @@ int main(int argc, char **argv) {
     StreamDecoder::Options decoder_option = {.name = std::string("ffmpeg")};
     auto stream_decoder = CreateStreamDecoder(decoder_option);
 
-    ImageProcessor::Options image_processor_option = {.name = std::string("display"),
-                                       .alias = camera, .userdata = g_liveview_sample};
-    auto image_processor = CreateImageProcessor(image_processor_option);
+    // Create image processor based on whether streaming URL is provided
+    std::shared_ptr<ImageProcessor> image_processor;
+    if (!stream_url.empty()) {
+        INFO("Streaming video to: %s", stream_url.c_str());
+        ImageProcessor::Options image_processor_option = {
+            .name = std::string("stream"),
+            .alias = camera,
+            .userdata = nullptr,
+            .stream_url = stream_url
+        };
+        image_processor = CreateImageProcessor(image_processor_option);
+    } else {
+        ImageProcessor::Options image_processor_option = {
+            .name = std::string("display"),
+            .alias = camera,
+            .userdata = g_liveview_sample
+        };
+        image_processor = CreateImageProcessor(image_processor_option);
+    }
 
     if (0 != InitLiveviewSample(
         g_liveview_sample, (Liveview::CameraType)type, (Liveview::StreamQuality)quality,
