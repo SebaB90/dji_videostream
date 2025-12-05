@@ -163,20 +163,23 @@ void input_monitor_thread() {
             if (addr == MAP_FAILED) {
                 ERROR("address_mapping_failed");
                 close(fd);
-            }
+            } else {
+                // Cast e lettura del valore
+                old_video_type = video_type;
+                video_type = *reinterpret_cast<int*>(addr);
+                    
+                if (old_video_type != video_type) {
+                    INFO("Detected lens change request: %d", video_type);
+                    g_liveview_sample->SetCameraSource((edge_sdk::Liveview::CameraSource)video_type);
+                }
 
-            // Cast e lettura del valore
-            old_video_type = video_type;
-            video_type = *reinterpret_cast<int*>(addr);
-                
-            if (old_video_type != video_type) {
-                INFO("Detected lens change request: %d", video_type);
-                g_liveview_sample->SetCameraSource((edge_sdk::Liveview::CameraSource)video_type);
-            }
+                if (video_type != 1 && video_type != 2 && video_type != 3) {
+                    INFO("Error: Invalid video_type %d. Valid values are 1 (wide), 2 (zoom), or 3 (IR).", video_type);
+                }
 
-            if ( video_type != 1 | video_type != 2 | video_type != 3) {
-                INFO("Error!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!.");
-                
+                // Clean up resources
+                munmap(addr, sizeof(int));
+                close(fd);
             }
         }
 

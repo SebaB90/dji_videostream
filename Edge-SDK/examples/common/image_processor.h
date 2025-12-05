@@ -38,7 +38,7 @@ class ImageProcessor {
         std::string name;
         std::string alias;
         std::shared_ptr<void> userdata;
-        std::string url;  // URL for HTTP streaming
+        std::string stream_url;  // URL for streaming (RTSP/RTMP)
     };
 
     virtual int32_t Init() { return 0; }
