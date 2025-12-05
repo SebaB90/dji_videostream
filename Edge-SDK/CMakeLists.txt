@@ -83,7 +83,8 @@ if (OpenCV_FOUND AND FFMPEG_FOUND)
             examples/liveview/stream_processor_thread.cc
             examples/common/util_misc.cc
             examples/common/image_processor.cc
-            examples/common/image_processor_yolovfastest.cc)
+            examples/common/image_processor_yolovfastest.cc
+            examples/common/image_processor_httpstream.cc)
 
     link_libraries(${OpenCV_LIBS})
     link_libraries(${FFMPEG_LIBRARIES})
