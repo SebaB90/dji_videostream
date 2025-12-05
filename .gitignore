@@ -22,6 +22,9 @@ Edge-SDK/.git/
 # General build and IDE
 dist/
 build/
+*.o
+_codeql_build_dir/
+_codeql_detected_source_root
 .vscode/
 docker/dji_keys/
 docker/dji_keys/**
