@@ -1,2 +1,0 @@
-/usr/bin/ar qc libedge_sample.a CMakeFiles/edge_sample.dir/examples/init/key_store_default.cc.o CMakeFiles/edge_sample.dir/examples/init/pre_init.cc.o
-/usr/bin/ranlib libedge_sample.a

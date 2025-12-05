@@ -1,7 +1,0 @@
-/home/runner/work/dji_videostream/dji_videostream/Edge-SDK/_codeql_build_dir/CMakeFiles/edge_sample.dir
-/home/runner/work/dji_videostream/dji_videostream/Edge-SDK/_codeql_build_dir/CMakeFiles/sample_read_media_file.dir
-/home/runner/work/dji_videostream/dji_videostream/Edge-SDK/_codeql_build_dir/CMakeFiles/sample_media_file_list.dir
-/home/runner/work/dji_videostream/dji_videostream/Edge-SDK/_codeql_build_dir/CMakeFiles/sample_set_upload_cloud_strategy.dir
-/home/runner/work/dji_videostream/dji_videostream/Edge-SDK/_codeql_build_dir/CMakeFiles/sample_cloud_api.dir
-/home/runner/work/dji_videostream/dji_videostream/Edge-SDK/_codeql_build_dir/CMakeFiles/edit_cache.dir
-/home/runner/work/dji_videostream/dji_videostream/Edge-SDK/_codeql_build_dir/CMakeFiles/rebuild_cache.dir
